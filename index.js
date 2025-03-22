@@ -3,6 +3,8 @@ from discord.ext import commands
 from discord import Embed, Colour, SelectOption
 from discord.ui import Select, View
 import random
+import yt_dlp as youtube_dl
+import asyncio
 
 intents = discord.Intents.default()
 intents.members = True
@@ -380,26 +382,66 @@ async def roast(ctx, member: discord.Member):
 @bot.command()
 async def userinfo(ctx, member: discord.Member = None):
     member = member or ctx.author
-    embed = Embed(
+    embed = discord.Embed(
         title=f"👤 **User Info: {member.name}**",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     embed.add_field(name="ID", value=member.id, inline=False)
     embed.add_field(name="Joined Server", value=member.joined_at.strftime("%Y-%m-%d"), inline=False)
     embed.add_field(name="Account Created", value=member.created_at.strftime("%Y-%m-%d"), inline=False)
-    embed.set_thumbnail(url=member.avatar_url)
+    
+    # Handle avatar URL
+    avatar_url = member.avatar.url if member.avatar else member.default_avatar.url
+    embed.set_thumbnail(url=avatar_url)
+    
     await ctx.send(embed=embed)
 
 @bot.command()
 async def serverinfo(ctx):
     guild = ctx.guild
-    embed = Embed(
+
+    # Server features
+    features = "\n".join([f"✅ {feature}" for feature in guild.features]) if guild.features else "❌ No special features"
+
+    # Channel counts
+    text_channels = len(guild.text_channels)
+    voice_channels = len(guild.voice_channels)
+
+    # Verification level
+    verification_level = str(guild.verification_level).capitalize()
+
+    # Member counts
+    total_members = guild.member_count
+    bots = sum(member.bot for member in guild.members)
+    humans = total_members - bots
+
+    # Roles
+    roles = len(guild.roles)
+
+    # Server creation date
+    created_at = guild.created_at.strftime("%m/%d/%Y, %I:%M %p")
+
+    # Server icon URL
+    icon_url = guild.icon.url if guild.icon else "https://discord.com/assets/1f0bfc0865d324c2587920a7d80c609b.png"
+
+    # Embed
+    embed = discord.Embed(
         title=f"🏰 **Server Info: {guild.name}**",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
-    embed.add_field(name="Members", value=guild.member_count, inline=False)
-    embed.add_field(name="Created At", value=guild.created_at.strftime("%Y-%m-%d"), inline=False)
-    embed.set_thumbnail(url=guild.icon_url)
+    embed.add_field(name="Owner", value=guild.owner, inline=False)
+    embed.add_field(name="Features", value=features, inline=False)
+    embed.add_field(name="Channels", value=f"🎆 {text_channels}\n🔊 {voice_channels}", inline=False)
+    embed.add_field(name="Info", value=f"Verification Level: {verification_level}", inline=False)
+    embed.add_field(name="Icon Link", value=f"[Click Here]({icon_url})", inline=False)
+    embed.add_field(name="Prefixes", value="`!`", inline=False)  # Customize prefixes as needed
+    embed.add_field(name="Members", value=f"Total: {total_members}\nHumans: {humans}\nBots: {bots}", inline=False)
+    embed.add_field(name="Roles", value=f"{roles} roles", inline=False)
+    embed.add_field(name="Image", value=f"ID: {guild.id}, Created • {created_at}", inline=False)
+    
+    # Set thumbnail
+    embed.set_thumbnail(url=icon_url)
+
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -429,7 +471,7 @@ async def remind(ctx, time: int, *, reminder):
 async def invite(ctx):
     embed = Embed(
         title="📨 **Invite**",
-        description="[Click here to invite the bot!](https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot&permissions=8)",
+        description="[Click here to invite the bot!](https://discord.com/oauth2/authorize?client_id=1350697653075185684&scope=bot&permissions=8)",
         color=Colour.blue()
     )
     await ctx.send(embed=embed)
@@ -482,43 +524,72 @@ async def translate(ctx, *, text):
 # Games Commands (10)
 # ------------------------------
 
+# 1. Rock-Paper-Scissors
 @bot.command()
-async def rps(ctx, choice: str):
+async def rps(ctx, choice: str = None):
     choices = ["rock", "paper", "scissors"]
+    if not choice or choice.lower() not in choices:
+        await ctx.send("❌ Please choose either `rock`, `paper`, or `scissors`.")
+        return
+
     bot_choice = random.choice(choices)
-    result = ""
-    if choice.lower() == bot_choice:
+    choice = choice.lower()
+
+    if choice == bot_choice:
         result = "It's a tie!"
-    elif (choice.lower() == "rock" and bot_choice == "scissors") or \
-         (choice.lower() == "paper" and bot_choice == "rock") or \
-         (choice.lower() == "scissors" and bot_choice == "paper"):
+    elif (choice == "rock" and bot_choice == "scissors") or \
+         (choice == "paper" and bot_choice == "rock") or \
+         (choice == "scissors" and bot_choice == "paper"):
         result = "You win!"
     else:
         result = "You lose!"
-    embed = Embed(
+
+    embed = discord.Embed(
         title="🎮 **Rock-Paper-Scissors**",
         description=f"You chose **{choice}**. I chose **{bot_choice}**. {result}",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+# 2. Guess the Number
 @bot.command()
-async def guess(ctx, number: int):
+async def guess(ctx):
     target = random.randint(1, 10)
-    if number == target:
-        embed = Embed(
-            title="🎯 **Guess the Number**",
-            description=f"Congratulations! You guessed the number **{target}**!",
-            color=Colour.green()
-        )
-    else:
-        embed = Embed(
-            title="🎯 **Guess the Number**",
-            description=f"Sorry, the number was **{target}**. Try again!",
-            color=Colour.red()
-        )
+    attempts = 3
+
+    embed = discord.Embed(
+        title="🎯 **Guess the Number**",
+        description="I'm thinking of a number between 1 and 10. You have 3 attempts!",
+        color=discord.Colour.blue()
+    )
     await ctx.send(embed=embed)
 
+    for attempt in range(attempts):
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.channel and m.content.isdigit()
+
+        try:
+            msg = await bot.wait_for("message", timeout=30.0, check=check)
+            guess = int(msg.content)
+
+            if guess == target:
+                embed = discord.Embed(
+                    title="🎯 **Correct!**",
+                    description=f"Congratulations! You guessed the number **{target}** in {attempt + 1} attempts!",
+                    color=discord.Colour.green()
+                )
+                await ctx.send(embed=embed)
+                return
+            else:
+                hint = "Too high!" if guess > target else "Too low!"
+                await ctx.send(f"❌ {hint} You have {attempts - attempt - 1} attempts left.")
+        except asyncio.TimeoutError:
+            await ctx.send("⏰ Time's up! You took too long to respond.")
+            return
+
+    await ctx.send(f"😢 You're out of attempts! The number was **{target}**.")
+
+# 3. Trivia
 @bot.command()
 async def trivia(ctx):
     questions = [
@@ -527,171 +598,344 @@ async def trivia(ctx):
         {"question": "What is the largest planet in the solar system?", "answer": "Jupiter"}
     ]
     q = random.choice(questions)
-    embed = Embed(
+    correct_answer = q["answer"]
+
+    embed = discord.Embed(
         title="❓ **Trivia**",
         description=q["question"],
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+        msg = await bot.wait_for("message", timeout=30.0, check=check)
+        if msg.content.lower() == correct_answer.lower():
+            response_embed = discord.Embed(
+                title="✅ **Correct!**",
+                description=f"Great job! The correct answer is **{correct_answer}**.",
+                color=discord.Colour.green()
+            )
+        else:
+            response_embed = discord.Embed(
+                title="❌ **Incorrect!**",
+                description=f"Sorry, the correct answer is **{correct_answer}**.",
+                color=discord.Colour.red()
+            )
+        await ctx.send(embed=response_embed)
+    except asyncio.TimeoutError:
+        await ctx.send("⏰ Time's up! You took too long to respond.")
+
+# 4. Hangman
 @bot.command()
 async def hangman(ctx):
     words = ["python", "discord", "bot", "programming"]
     word = random.choice(words)
-    embed = Embed(
+    guessed = ["_"] * len(word)
+    attempts = 6
+
+    embed = discord.Embed(
         title="🪓 **Hangman**",
-        description=f"The word has {len(word)} letters. Guess a letter!",
-        color=Colour.blue()
+        description=f"The word has {len(word)} letters. Guess a letter!\n`{' '.join(guessed)}`",
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+    while attempts > 0 and "_" in guessed:
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.channel and len(m.content) == 1
+
+        try:
+            msg = await bot.wait_for("message", timeout=30.0, check=check)
+            letter = msg.content.lower()
+
+            if letter in word:
+                for i, char in enumerate(word):
+                    if char == letter:
+                        guessed[i] = letter
+                await ctx.send(f"✅ Correct! `{' '.join(guessed)}`")
+            else:
+                attempts -= 1
+                await ctx.send(f"❌ Incorrect! You have {attempts} attempts left.")
+        except asyncio.TimeoutError:
+            await ctx.send("⏰ Time's up! You took too long to respond.")
+            return
+
+    if "_" not in guessed:
+        await ctx.send(f"🎉 You won! The word was **{word}**.")
+    else:
+        await ctx.send(f"😢 You lost! The word was **{word}**.")
+
+# 5. Tic-Tac-Toe
 @bot.command()
 async def tictactoe(ctx, member: discord.Member):
-    embed = Embed(
+    if member.bot:
+        await ctx.send("❌ You can't play against a bot!")
+        return
+
+    embed = discord.Embed(
         title="⭕ **Tic-Tac-Toe**",
         description=f"{ctx.author.mention} vs {member.mention}. Game starting soon!",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+# 6. Blackjack
 @bot.command()
 async def blackjack(ctx):
-    embed = Embed(
+    embed = discord.Embed(
         title="🃏 **Blackjack**",
         description="Blackjack game starting soon!",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+# 7. Roulette
 @bot.command()
 async def roulette(ctx):
-    embed = Embed(
+    embed = discord.Embed(
         title="🎰 **Roulette**",
         description="Roulette game starting soon!",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+# 8. Slot Machine
 @bot.command()
 async def slot(ctx):
-    embed = Embed(
+    embed = discord.Embed(
         title="🎰 **Slot Machine**",
         description="Slot machine game starting soon!",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+# 9. Quiz
 @bot.command()
 async def quiz(ctx):
-    embed = Embed(
+    embed = discord.Embed(
         title="📚 **Quiz**",
         description="Quiz game starting soon!",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
 
+# 10. Wordle
 @bot.command()
 async def wordle(ctx):
-    embed = Embed(
+    embed = discord.Embed(
         title="🔠 **Wordle**",
         description="Wordle game starting soon!",
-        color=Colour.blue()
+        color=discord.Colour.blue()
     )
     await ctx.send(embed=embed)
+# credits
+@bot.command()
+async def credits(ctx):
+    embed = discord.Embed(
+        title="🌟 **Atrax Credits**",
+        description="Thank you for using **Atrax**! Here are the credits and some important links:",
+        color=discord.Colour.green()
+    )
+    embed.add_field(
+        name="👑 **Creator**",
+        value="Made by **Purukees**",
+        inline=False
+    )
+    embed.add_field(
+        name="🏓 **Bot Ping**",
+        value=f"{round(bot.latency * 1000)}ms",
+        inline=False
+    )
+    embed.add_field(
+        name="📂 **GitHub Repository**",
+        value="[Atrax on GitHub](https://github.com/slovakians/Atrax)",
+        inline=False
+    )
+    embed.add_field(
+        name="📫 **YouTube**",
+        value="[ShadBG on YouTube](https://www.youtube.com/@shadbg)",
+        inline=False
+    )
+    embed.add_field(
+        name="💡 **Did You Know?**",
+        value="Atrax is an open-source Discord bot designed to make your server experience better! Feel free to contribute to the project on GitHub.",
+        inline=False
+    )
+    embed.set_thumbnail(url="https://files.oaiusercontent.com/file-LzmTjU7M3x95dLMNpbDgev?se=2025-03-22T11%3A49%3A34Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Db4ecad7e-bee1-49e2-8007-3a752dbfe659.webp&sig=ntkZWKNSsizzB/ft2RmxWSzWVafGk2xgKpdPxNGTfHA%3D")
+    embed.set_footer(text="Thanks for using Atrax! ❤️")
+
+    await ctx.send(embed=embed)
+
 
 # ------------------------------
 # Music Commands (10)
 # ------------------------------
 
-@bot.command()
-async def play(ctx, *, song):
-    embed = Embed(
-        title="🎵 **Play**",
-        description=f"Now playing: **{song}**",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+# Music Queue
+queue = []
+loop = False
 
+# YouTube DL Options
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0',  # Bind to IPv4
+    'cookiefile': 'cookies.txt'  # Add this line to use cookies
+}
+
+ffmpeg_options = {
+    'options': '-vn'
+}
+
+ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+        self.data = data
+        self.title = data.get('title')
+        self.url = data.get('url')
+
+    @classmethod
+    async def from_url(cls, url, *, loop=None, stream=False):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+
+        if 'entries' in data:
+            data = data['entries'][0]
+
+        filename = data['url'] if stream else ytdl.prepare_filename(data)
+        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
+# Play Command
+@bot.command()
+async def play(ctx, *, url):
+    if not ctx.author.voice:
+        await ctx.send("You are not connected to a voice channel.")
+        return
+
+    channel = ctx.author.voice.channel
+
+    if not ctx.voice_client:
+        await channel.connect()
+    elif ctx.voice_client.channel != channel:
+        await ctx.send("I'm already in another voice channel.")
+        return
+
+    async with ctx.typing():
+        try:
+            player = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
+            queue.append(player)
+            if not ctx.voice_client.is_playing():
+                play_next(ctx)
+            await ctx.send(f"Added to queue: **{player.title}**")
+        except Exception as e:
+            await ctx.send(f"An error occurred: {e}")
+
+# Pause Command
 @bot.command()
 async def pause(ctx):
-    embed = Embed(
-        title="🎵 **Pause**",
-        description="Music paused.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+    if ctx.voice_client.is_playing():
+        ctx.voice_client.pause()
+        await ctx.send("Music paused.")
+    else:
+        await ctx.send("No music is currently playing.")
 
+# Resume Command
 @bot.command()
 async def resume(ctx):
-    embed = Embed(
-        title="🎵 **Resume**",
-        description="Music resumed.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+    if ctx.voice_client.is_paused():
+        ctx.voice_client.resume()
+        await ctx.send("Music resumed.")
+    else:
+        await ctx.send("Music is not paused.")
 
+# Skip Command
 @bot.command()
 async def skip(ctx):
-    embed = Embed(
-        title="🎵 **Skip**",
-        description="Skipped the current song.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+    if ctx.voice_client.is_playing():
+        ctx.voice_client.stop()
+        await ctx.send("Skipped the current song.")
+    else:
+        await ctx.send("No music is currently playing.")
 
+# Stop Command
 @bot.command()
 async def stop(ctx):
-    embed = Embed(
-        title="🎵 **Stop**",
-        description="Music stopped.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+    if ctx.voice_client:
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
+        await ctx.voice_client.disconnect()
+        queue.clear()
+        await ctx.send("Music stopped and disconnected.")
+    else:
+        await ctx.send("I'm not in a voice channel.")
 
+# Queue Command
 @bot.command()
-async def queue(ctx):
-    embed = Embed(
-        title="🎵 **Queue**",
-        description="Here's the current queue:",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+async def queue_cmd(ctx):
+    if not queue:
+        await ctx.send("The queue is empty.")
+    else:
+        queue_list = "\n".join([f"{i + 1}. {song.title}" for i, song in enumerate(queue)])
+        await ctx.send(f"**Queue:**\n{queue_list}")
 
-@bot.command()
-async def volume(ctx, level: int):
-    embed = Embed(
-        title="🎵 **Volume**",
-        description=f"Volume set to **{level}%**.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
-
+# Now Playing Command
 @bot.command()
 async def nowplaying(ctx):
-    embed = Embed(
-        title="🎵 **Now Playing**",
-        description="Currently playing: **Song Name**",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+    if ctx.voice_client and ctx.voice_client.is_playing():
+        await ctx.send(f"Now playing: **{ctx.voice_client.source.title}**")
+    else:
+        await ctx.send("No music is currently playing.")
 
+# Volume Command
+@bot.command()
+async def volume(ctx, volume: int):
+    if ctx.voice_client:
+        if 0 <= volume <= 100:
+            ctx.voice_client.source.volume = volume / 100
+            await ctx.send(f"Volume set to **{volume}%**.")
+        else:
+            await ctx.send("Volume must be between 0 and 100.")
+    else:
+        await ctx.send("I'm not in a voice channel.")
+
+# Shuffle Command
 @bot.command()
 async def shuffle(ctx):
-    embed = Embed(
-        title="🎵 **Shuffle**",
-        description="Queue shuffled.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+    if queue:
+        random.shuffle(queue)
+        await ctx.send("Queue shuffled.")
+    else:
+        await ctx.send("The queue is empty.")
 
+# Loop Command
 @bot.command()
-async def loop(ctx):
-    embed = Embed(
-        title="🎵 **Loop**",
-        description="Looping the current song.",
-        color=Colour.blue()
-    )
-    await ctx.send(embed=embed)
+async def loop_cmd(ctx):
+    global loop
+    loop = not loop
+    await ctx.send(f"Looping {'enabled' if loop else 'disabled'}.")
+
+# Helper function to play the next song
+def play_next(ctx):
+    if queue:
+        player = queue.pop(0)
+        ctx.voice_client.play(player, after=lambda e: play_next(ctx) if loop or queue else None)
+        asyncio.run_coroutine_threadsafe(ctx.send(f"Now playing: **{player.title}**"), bot.loop)
+    elif ctx.voice_client:
+        asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), bot.loop)
+
 
 # ------------------------------
 # Extra Fun Commands (8)
@@ -791,4 +1035,4 @@ async def ascii(ctx, *, text):
 
 
 
-bot.run('TOKEN IN HERE')
+bot.run('Token In HEre')
