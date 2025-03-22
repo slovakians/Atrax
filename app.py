@@ -1,3 +1,11 @@
+#-------------------------------------------
+#
+# Fun fact when just editing this file it 
+# Crashed my browser btw its 1039 lines
+# of code btw 
+#
+#-------------------------------------------
+
 import discord
 from discord.ext import commands
 from discord import Embed, Colour, SelectOption
@@ -52,6 +60,7 @@ async def on_interaction(interaction):
 
         if category == "moderation":
             embed.description = "🔨 **Moderation Commands**"
+            embed.add_field(name="`!credits`", value="Shows credits to the guys who made the bot.", inline=False)
             embed.add_field(name="`!ban <user>`", value="Ban a user from the server.", inline=False)
             embed.add_field(name="`!kick <user>`", value="Kick a user from the server.", inline=False)
             embed.add_field(name="`!mute <user>`", value="Mute a user.", inline=False)
@@ -1035,4 +1044,4 @@ async def ascii(ctx, *, text):
 
 
 
-bot.run('Token In HEre')
+bot.run('TOKEN BE PLACED IN HERE')
