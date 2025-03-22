@@ -1,12 +1,8 @@
 # Atrax
 A Multi purpose discord bot open sourced 
+All Of the things are inside of one file and Moderations fun and more are comming
 
-# What new!
-- All Of the things are inside of one file
-- Alot of features
-- Moderations fun and more are comming
-
-# update 1.1
+# whats new!
 - fixed userinfo command
 - fixed serverinfo command and made it a bit better
 - fixed entire game section commands (10 commands)
@@ -15,4 +11,21 @@ A Multi purpose discord bot open sourced
 # Known Errors
 - Music play
 Doesnt play the music and require youtube cookies
+- 
+
+# questions
+- why is it in only one python file?
+- its because i was just too lazy to make all of them into individual files
+
+- Why did u even make this?
+- I was Just bored nothing else
+
+# Facts
+- fun fact : the entire bot has a total of 1038 lines of code
+
+# dependencies 
+```pip install discord yt-dlp asyncio```
+
+# Creator
+- Made with 💘 by @SYZDARK aka ShadBg
 - 
