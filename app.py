@@ -169,7 +169,7 @@ async def unpanic(ctx):
     for channel in guild.text_channels:
         await channel.set_permissions(everyone_role, send_messages=True)
 
-    embed = discord.embed(
+    embed = discord.Embed(
         title="🔓 **Server Unlocked**",
         description="All text channels have been unlocked. Use `!panic` to lock them.",
         color=discord.Colour.green()
