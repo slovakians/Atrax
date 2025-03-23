@@ -3,8 +3,7 @@ A Multi purpose discord bot open sourced
 All Of the things are inside of one file and Moderations fun and more are comming
 
 # whats new!
-- added unpanic command
-- added panic command
+- added More roasts
 
 # Known Errors
 - Music play
