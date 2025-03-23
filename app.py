@@ -62,6 +62,8 @@ async def on_interaction(interaction):
             embed.description = "🔨 **Moderation Commands**"
             embed.add_field(name="`!credits`", value="Shows credits to the guys who made the bot.", inline=False)
             embed.add_field(name="`!ban <user>`", value="Ban a user from the server.", inline=False)
+            embed.add_field(name="`!unpanic`", value="Unlocks all text channels in the server", inline=False)
+            embed.add_field(name="`!panic`", value="Locks all text channels in the server.", inline=False)
             embed.add_field(name="`!kick <user>`", value="Kick a user from the server.", inline=False)
             embed.add_field(name="`!mute <user>`", value="Mute a user.", inline=False)
             embed.add_field(name="`!unmute <user>`", value="Unmute a user.", inline=False)
@@ -157,6 +159,39 @@ async def on_interaction(interaction):
 # ------------------------------
 # Moderation Commands (10)
 # ------------------------------
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def unpanic(ctx):
+    guild = ctx.guild
+    everyone_role = guild.default_role
+
+    for channel in guild.text_channels:
+        await channel.set_permissions(everyone_role, send_messages=True)
+
+    embed = discord.embed(
+        title="🔓 **Server Unlocked**",
+        description="All text channels have been unlocked. Use `!panic` to lock them.",
+        color=discord.Colour.green()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+@commands.has_permissions(administrator=True) 
+async def panic(ctx):
+    guild = ctx.guild
+    everyone_role = guild.default_role
+
+    
+    for channel in guild.text_channels:
+        await channel.set_permissions(everyone_role, send_messages=False)
+
+    embed = discord.Embed(
+        title="🔒 **Server Locked**",
+        description="All text channels have been locked. Use `!unpanic` to unlock them.",
+        color=discord.Colour.red()
+    )
+    await ctx.send(embed=embed)
 
 @bot.command()
 @commands.has_permissions(ban_members=True)
@@ -1044,4 +1079,4 @@ async def ascii(ctx, *, text):
 
 
 
-bot.run('TOKEN BE PLACED IN HERE')
+bot.run('TOKEN IN HERE')
