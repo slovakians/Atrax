@@ -6,6 +6,7 @@ All Of the things are inside of one file and Moderations fun and more are commin
 - added More roasts
 - added unpanic cmd
 - added panic cmd
+- added rotating Status
 
 # Known Errors
 - Music play
