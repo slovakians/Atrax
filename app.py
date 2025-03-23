@@ -16,9 +16,32 @@ import asyncio
 
 intents = discord.Intents.default()
 intents.members = True
+intents.guilds = True
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user} ({bot.user.id})")
+    bot.loop.create_task(change_status())
+
+async def change_status():
+    while True:
+        servers_count = len(bot.guilds)
+
+        # Fetch members manually
+        member_count = sum(len(guild.members) for guild in bot.guilds)
+
+        statuses = [
+            f"🌍 In {servers_count} servers!",
+            f"⚡ Use !help for commands!",
+            f"🚀 Serving {servers_count} communities!"
+        ]
+
+        for status in statuses:
+            await bot.change_presence(activity=discord.Game(name=status))
+            await asyncio.sleep(10)  # Change status every 10 seconds
 
 # Custom Help Command with Dropdown
 @bot.command()
@@ -1146,4 +1169,4 @@ async def ascii(ctx, *, text):
 
 
 
-bot.run('YOUR BOT TOKEN') # DISCORD BOT TOKEN
+bot.run('TOKEN') # DISCORD BOT TOKEN
