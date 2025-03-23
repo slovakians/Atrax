@@ -1146,4 +1146,4 @@ async def ascii(ctx, *, text):
 
 
 
-bot.run('TOKEN IN HERE BOI')
+bot.run('YOUR BOT TOKEN') # DISCORD BOT TOKEN
