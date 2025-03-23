@@ -28,4 +28,6 @@ Doesnt play the music and require youtube cookies
 
 # Creator
 - Made with 💘 by @SYZDARK aka ShadBg
-- 
+
+# Test the bot
+- [CLICK ME](https://discord.com/oauth2/authorize?client_id=1298448128575275141)
