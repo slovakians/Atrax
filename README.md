@@ -4,6 +4,8 @@ All Of the things are inside of one file and Moderations fun and more are commin
 
 # whats new!
 - added More roasts
+- added unpanic cmd
+- added panic cmd
 
 # Known Errors
 - Music play
@@ -18,7 +20,7 @@ Doesnt play the music and require youtube cookies
 - I was Just bored nothing else
 
 # Facts
-- fun fact : the entire bot has a total of 1038 lines of code
+- fun fact : the entire bot has a total of 1150 lines of code
 
 # dependencies 
 ```pip install discord yt-dlp asyncio```
