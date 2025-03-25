@@ -4,6 +4,8 @@
 # Crashed my browser btw its 1039 lines
 # of code btw 
 #
+# OLD SOURCE CODE DO NOT USE!
+#
 #-------------------------------------------
 
 import discord
