@@ -1,0 +1,10 @@
+discord.py
+asyncio
+aiohttp
+os
+random
+time
+socket
+psutil
+asyncpraw
+python-dotenv
