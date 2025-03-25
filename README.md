@@ -1,33 +1,40 @@
-# Atrax
-A Multi purpose discord bot open sourced 
-All Of the things are inside of one file and Moderations fun and more are comming
+---
 
-# whats new!
-- added More roasts
-- added unpanic cmd
-- added panic cmd
-- added rotating Status
+# **Atrax - The Ultimate Discord Bot**  
+🎮 **Games | 🎵 Music | 🎭 Fun | 🔧 Utilities**  
 
-# Known Errors
-- Music play
-Doesnt play the music and require youtube cookies
-- 
+Atrax is a **feature-packed** open-source Discord bot designed to enhance your server with **games, music, and more**!  
 
-# questions
-- why is it in only one python file?
-- its because i was just too lazy to make all of them into individual files
+![Atrax Banner](https://github.com/slovakians/Atrax/blob/main/logo.png?raw=true)  
 
-- Why did u even make this?
-- I was Just bored nothing else
+---
 
-# Facts
-- fun fact : the entire bot has a total of 1150 lines of code
+## 🚀 **Features**  
 
-# dependencies 
-```pip install discord yt-dlp asyncio```
+✅ **Fun Commands** – Rock Paper Scissors, Tic-Tac-Toe, Wordle, Trivia, and more!  
+✅ **Games** – Play Blackjack, Roulette, Slot Machine, and Hangman!  
+✅ **Music** – Play high-quality music (Currently **Disabled** 🚧)  
+✅ **Utility Commands** – Server info, user stats, and more!  
 
-# Creator
-- Made with 💘 by @SYZDARK aka ShadBg
+---
 
-# Test the bot
-- [CLICK ME](https://discord.com/oauth2/authorize?client_id=1298448128575275141)
+## 📜 **Credits**  
+
+- 👑 **Created by:** [Purukees](https://github.com/slovakians)   
+- 📂 **GitHub Repo:** [Atrax on GitHub](https://github.com/slovakians/Atrax)  
+- 🎥 **YouTube:** [ShadBG on YouTube](https://www.youtube.com/@shadbg)  
+
+---
+
+## 📬 **Support & Contributions**  
+
+💡 Found a bug? Have a cool feature idea? **Feel free to contribute!**  
+- **Fork the repo**  
+- **Create a pull request**  
+- **Join our Discord community!**  
+
+---
+
+🚀 **Atrax is always improving!** Thanks for using it! ❤️  
+
+---
