@@ -4,6 +4,7 @@ import asyncio
 import os
 import random
 import time
+import pyfiglet
 import socket
 import psutil
 import aiohttp
