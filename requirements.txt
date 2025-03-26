@@ -8,3 +8,4 @@ socket
 psutil
 asyncpraw
 python-dotenv
+pyfiglet
